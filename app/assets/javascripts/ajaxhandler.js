@@ -4,9 +4,9 @@ function lookupURL() {
   }
   else {
     $("#progress").html('');
-    $.get("/minus/new?folderurl=" + $("#folderurl").val(), function(data) {
+    window.setInterval($.get("/minus/new?folderurl=" + $("#folderurl").val(), function(data) {
       $("#progress").html(data);
-    });
+    }), 1000);
   }
 }
 
