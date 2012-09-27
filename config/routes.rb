@@ -1,4 +1,9 @@
 Anxair::Application.routes.draw do
+
+  resources :minus do
+  end
+
+  root :to => 'minus#index'
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
