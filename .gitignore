@@ -16,3 +16,4 @@
 Gemfile.lock
 public
 *.swp
+config/minus_api.yml
