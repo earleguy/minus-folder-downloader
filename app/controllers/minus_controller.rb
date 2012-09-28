@@ -52,10 +52,10 @@ class MinusController < ActionController::Base
         end
       end
 
-      `mv /tmp/#{album_id}.zip #{Dir.pwd}/public`
+      `mv /tmp/#{album_id}.zip #{Dir.pwd}/public/zips && chmod 777 #{Dir.pwd}/public/zips/#{album_id}.zip`
       `rm -Rf /tmp/#{album_id}`
 
-      @link = "http://cvm:3000/#{album_id}.zip"
+      @link = "http://rails.zamn.net/zips/#{album_id}.zip"
 
     end
   end
