@@ -13,7 +13,7 @@ class MinusController < ActionController::Base
   def new
     @link = ""
     url = params[:folderurl]
-    is_valid = /.minus.*\/m/i.match(url)
+    is_valid = /\bminus\b/m/i.match(url)
     @count = 0
     if is_valid.class == MatchData
       user_url = URI(url)
@@ -28,34 +28,36 @@ class MinusController < ActionController::Base
       btoken = access["access_token"]
 
       temp = URI(user_url).path.split("/")[1]
-      album_id = temp[1...temp.length]
+	  if temp[0] == 'm'
+			  album_id = temp[1...temp.length]
 
-      api_url = "http://minus.com/api/v2/folders/#{album_id}/files"
-      folder_list_json = HTTParty.get(api_url + "?bearer_token=#{btoken}")
-      folder_list = ActiveSupport::JSON.decode(folder_list_json.body)
+			  api_url = "http://minus.com/api/v2/folders/#{album_id}/files"
+			  folder_list_json = HTTParty.get(api_url + "?bearer_token=#{btoken}")
+			  folder_list = ActiveSupport::JSON.decode(folder_list_json.body)
 
-      results = folder_list["results"]
+			  results = folder_list["results"]
 
-      @total = results.length
+			  @total = results.length
 
-      `mkdir /tmp/#{album_id}`
-      for i in 0...results.length
-        file_ext = File.extname(results[i]["name"])
-        file_id = results[i]["id"]
-        `wget http://minus.com/#{"i" + file_id + file_ext} -P /tmp/#{album_id}`
-        @count = @count + 1
-      end
+			  `mkdir /tmp/#{album_id}`
+			  for i in 0...results.length
+				file_ext = File.extname(results[i]["name"])
+				file_id = results[i]["id"]
+				`wget http://minus.com/#{"i" + file_id + file_ext} -P /tmp/#{album_id}`
+				@count = @count + 1
+			  end
 
-      Zip::ZipFile.open("/tmp/#{album_id}.zip", Zip::ZipFile::CREATE) do |zipfile|
-        Dir.entries("/tmp/#{album_id}").each do |filename|
-          zipfile.add(filename, "/tmp/#{album_id}/#{filename}")
-        end
-      end
+			  Zip::ZipFile.open("/tmp/#{album_id}.zip", Zip::ZipFile::CREATE) do |zipfile|
+				Dir.entries("/tmp/#{album_id}").each do |filename|
+				  zipfile.add(filename, "/tmp/#{album_id}/#{filename}")
+				end
+			  end
 
-      `mv /tmp/#{album_id}.zip #{Dir.pwd}/public/zips && chmod 777 #{Dir.pwd}/public/zips/#{album_id}.zip`
-      `rm -Rf /tmp/#{album_id}`
+			  `mv /tmp/#{album_id}.zip #{Dir.pwd}/public/zips && chmod 777 #{Dir.pwd}/public/zips/#{album_id}.zip`
+			  `rm -Rf /tmp/#{album_id}`
 
-      @link = "http://rails.zamn.net/zips/#{album_id}.zip"
+			  @link = "http://rails.zamn.net/zips/#{album_id}.zip"
+	  end
 
     end
   end

@@ -20,6 +20,7 @@ $("#submiturl").click(function() {
 
 $("#folderurl").bind('keypress', function(e) {
   if (e.keyCode == 13) {
+    $("#submiturl").attr("disabled", "disabled");
     event.preventDefault();
     lookupURL();
   }
