@@ -15,6 +15,7 @@ function downloadFolders() {
 
 $("#submiturl").click(function() {
   lookupURL();
+  $("#submiturl").attr("disabled", "disabled");
 });
 
 $("#folderurl").bind('keypress', function(e) {

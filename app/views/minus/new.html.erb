@@ -1,4 +1,4 @@
-<%= @count "/" @total " downloaded." %>
+<%= @count.to_s + "/" + @total.to_s + " downloaded." %>
 <br/>
 
 <% if !@link.eql?("") %>

@@ -14,7 +14,7 @@ class MinusController < ActionController::Base
     @link = ""
     url = params[:folderurl]
     is_valid = /.minus.*\/m/i.match(url)
-    @count = 1
+    @count = 0
     if is_valid.class == MatchData
       user_url = URI(url)
 
