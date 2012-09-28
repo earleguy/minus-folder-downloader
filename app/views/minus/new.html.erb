@@ -2,5 +2,8 @@
 <br/>
 
 <% if !@link.eql?("") %>
-<%= link_to("Download Here.", @link) %>
+  <%= link_to("Download Here.", @link) %>
+<% end %>
+<% if @error != 0 %>
+  <%= "Bad URL, bro." %>
 <% end %>
