@@ -1,3 +1,6 @@
-<%= @count %>
+<%= @count "/" @total " downloaded." %>
+<br/>
 
-hi ther
+<% if !@link.eql?("") %>
+<%= link_to("Download Here.", @link) %>
+<% end %>

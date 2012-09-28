@@ -1,4 +1,5 @@
 require 'zip/zip'
+require 'uri'
 require 'json'
 require 'yaml'
 require 'httparty'
@@ -10,11 +11,14 @@ class MinusController < ActionController::Base
   end
 
   def new
+    @link = ""
     url = params[:folderurl]
     is_valid = /.minus.*\/m/i.match(url)
     @count = 1
     if is_valid.class == MatchData
-      config = YAML::load_file("/home/zamn/code/rails/minus-folder-downloader/config/minus_api.yml")
+      user_url = URI(url)
+
+      config = YAML::load_file("#{Dir.pwd}/config/minus_api.yml")
       api_key = config["Key"]
       secret = config["Secret"]
       username = config["Username"]
@@ -23,20 +27,36 @@ class MinusController < ActionController::Base
       access = ActiveSupport::JSON.decode(access_json.body)
       btoken = access["access_token"]
 
-      blah = "http://minus.com/api/v2/folders/0FQHJakL/files"
-      folder_list_json = HTTParty.get(blah + "?bearer_token=#{btoken}")
+      temp = URI(user_url).path.split("/")[1]
+      album_id = temp[1...temp.length]
+
+      api_url = "http://minus.com/api/v2/folders/#{album_id}/files"
+      folder_list_json = HTTParty.get(api_url + "?bearer_token=#{btoken}")
       folder_list = ActiveSupport::JSON.decode(folder_list_json.body)
 
       results = folder_list["results"]
 
+      @total = results.length
+
+      `mkdir /tmp/#{album_id}`
       for i in 0...results.length
         file_ext = File.extname(results[i]["name"])
         file_id = results[i]["id"]
-        `wget http://minus.com/#{"i" + file_id + file_ext} -P /home/zamn/temp`
+        `wget http://minus.com/#{"i" + file_id + file_ext} -P /tmp/#{album_id}`
         @count = @count + 1
       end
 
-      puts "WE HAVE A MATCH!!"
+      Zip::ZipFile.open("/tmp/#{album_id}.zip", Zip::ZipFile::CREATE) do |zipfile|
+        Dir.entries("/tmp/#{album_id}").each do |filename|
+          zipfile.add(filename, "/tmp/#{album_id}/#{filename}")
+        end
+      end
+
+      `mv /tmp/#{album_id}.zip #{Dir.pwd}/public`
+      `rm -Rf /tmp/#{album_id}`
+
+      @link = "http://cvm:3000/#{album_id}.zip"
+
     end
   end
 
